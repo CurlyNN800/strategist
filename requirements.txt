@@ -1,0 +1,9 @@
+# Черновой список под скрипты шага 4 (роль Б уточнит версии)
+pyyaml>=6.0          # sources.yaml
+jsonschema>=4.0      # проверка state.json и evidence.jsonl по схемам из docs/schemas
+requests>=2.31       # fetch_source.py: загрузка страниц
+markdownify>=0.11    # fetch_source.py: HTML -> markdown
+pypdf>=4.0           # extract.py: PDF
+python-docx>=1.1     # extract.py: DOCX
+openpyxl>=3.1        # extract.py: XLSX
+pandas>=2.0          # analyze.py: таблицы

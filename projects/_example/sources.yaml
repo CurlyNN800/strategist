@@ -1,0 +1,39 @@
+# Реестр источников задачи. Пример формата, данные вымышлены.
+- id: S001
+  kind: site
+  title: "Отзывы о «Привычке+» в магазине приложений"
+  url: "https://example.com/apps/privychka-plus/reviews"
+  original_file: null
+  local: sources/S001.md
+  publisher: "магазин приложений"
+  published: null
+  retrieved: "2026-11-13"
+  sha256: d04a364ac2e219e716814480a6d0322c128134cf6a1340d69a0c8ca66227312d
+  status: ok
+  notes: "120 отзывов за август–октябрь 2026; выборка смещена к крайним оценкам"
+
+- id: S002
+  kind: csv
+  title: "Удержание по месячным когортам, май–октябрь 2026"
+  url: null
+  original_file: "retention_cohorts.xlsx"
+  local: sources/S002.csv
+  publisher: "руководитель продукта (выгрузка из аналитики)"
+  published: null
+  retrieved: "2026-11-13"
+  sha256: ca3501f9be8b02cc578ce00e15e3a2983d7bfdd357355dcb72bcf45e43b5540c
+  status: ok
+  notes: "retained_d30 у октябрьской когорты пусто — 30 дней ещё не прошло"
+
+- id: S003
+  kind: synthetic
+  title: "Сессия с модельным респондентом: ушедшая пользовательница"
+  url: null
+  original_file: null
+  local: sources/S003.md
+  publisher: "cheap-model в заданной роли"
+  published: null
+  retrieved: "2026-11-13"
+  sha256: 87e3c6398e044ce4768d1195acc9ac156201b9037a8946fcaabb928408fb421b
+  status: ok
+  notes: "СИНТЕТИКА: только для поиска гипотез"

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "_example",
+  "title": "Почему у «Привычки+» упало удержание новых пользователей и что делать",
+  "created": "2026-11-13T18:00:00+03:00",
+  "updated": "2026-11-13T18:47:00+03:00",
+  "stage": "03-research",
+  "stages": {
+    "01-intake": "done",
+    "02-collect": "done",
+    "03-research": "in_progress",
+    "04-options": "pending",
+    "05-decision": "pending",
+    "06-strategy": "pending",
+    "07-validation": "pending"
+  },
+  "steps": [
+    {"id": 1, "stage": "01-intake", "action": "уточнить вопрос, цель, получателя, ограничения и данные", "status": "done", "started": "2026-11-13T18:00:00+03:00", "finished": "2026-11-13T18:08:00+03:00", "outputs": ["brief.md", "evidence.jsonl"], "model": "strong-model", "error": null},
+    {"id": 2, "stage": "02-collect", "action": "загрузить выгрузку удержания по когортам", "status": "done", "started": "2026-11-13T18:09:00+03:00", "finished": "2026-11-13T18:10:00+03:00", "outputs": ["sources/S002.csv", "sources.yaml"], "model": null, "error": null},
+    {"id": 3, "stage": "02-collect", "action": "собрать отзывы из магазина приложений", "status": "done", "started": "2026-11-13T18:10:00+03:00", "finished": "2026-11-13T18:16:00+03:00", "outputs": ["sources/S001.md", "sources.yaml"], "model": "cheap-model", "error": null},
+    {"id": 4, "stage": "02-collect", "action": "сессия с модельным респондентом для поиска гипотез", "status": "done", "started": "2026-11-13T18:16:00+03:00", "finished": "2026-11-13T18:20:00+03:00", "outputs": ["sources/S003.md", "sources.yaml"], "model": "cheap-model", "error": null},
+    {"id": 5, "stage": "02-collect", "action": "извлечь утверждения из источников в реестр", "status": "done", "started": "2026-11-13T18:20:00+03:00", "finished": "2026-11-13T18:27:00+03:00", "outputs": ["evidence.jsonl"], "model": "cheap-model", "error": null},
+    {"id": 6, "stage": "03-research", "action": "найти дату релиза 4.0 в истории версий приложения", "status": "failed", "started": "2026-11-13T18:28:00+03:00", "finished": "2026-11-13T18:29:00+03:00", "outputs": [], "model": null, "error": "страница истории версий недоступна (HTTP 503)"},
+    {"id": 7, "stage": "03-research", "action": "черновик картины ситуации", "status": "in_progress", "started": "2026-11-13T18:30:00+03:00", "finished": null, "outputs": ["situation.md", "evidence.jsonl"], "model": "strong-model", "error": null}
+  ],
+  "waiting_for_human": null,
+  "open_questions": [
+    {"id": "Q1", "text": "Когда именно вышло обновление 4.0?", "matters_because": "Если до начала августа — гипотеза E007 сильнее; если позже — нужна другая причина.", "status": "open"},
+    {"id": "Q2", "text": "Меняли ли в 4.0 частоту уведомлений по умолчанию?", "matters_because": "Прямо подтверждает или опровергает механизм из E007.", "status": "open"},
+    {"id": "Q3", "text": "Каким будет удержание на 30-й день у октябрьской когорты?", "matters_because": "Данных ещё нет (S002, пустая ячейка); покажет, продолжается ли падение.", "status": "open"}
+  ]
+}

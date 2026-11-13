@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "state.json",
+  "type": "object",
+  "required": ["schema_version", "task_id", "title", "created", "updated", "stage", "stages", "steps", "waiting_for_human", "open_questions"],
+  "additionalProperties": false,
+  "$defs": {
+    "stageCode": {"enum": ["01-intake", "02-collect", "03-research", "04-options", "05-decision", "06-strategy", "07-validation"]},
+    "stageStatus": {"enum": ["pending", "in_progress", "waiting_human", "done", "skipped"]}
+  },
+  "properties": {
+    "schema_version": {"const": 1},
+    "task_id": {"type": "string", "pattern": "^_?[a-z0-9][a-z0-9-]*$"},
+    "title": {"type": "string", "minLength": 1},
+    "created": {"type": "string"},
+    "updated": {"type": "string"},
+    "stage": {"$ref": "#/$defs/stageCode"},
+    "stages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["01-intake", "02-collect", "03-research", "04-options", "05-decision", "06-strategy", "07-validation"],
+      "properties": {
+        "01-intake": {"$ref": "#/$defs/stageStatus"},
+        "02-collect": {"$ref": "#/$defs/stageStatus"},
+        "03-research": {"$ref": "#/$defs/stageStatus"},
+        "04-options": {"$ref": "#/$defs/stageStatus"},
+        "05-decision": {"$ref": "#/$defs/stageStatus"},
+        "06-strategy": {"$ref": "#/$defs/stageStatus"},
+        "07-validation": {"$ref": "#/$defs/stageStatus"}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "stage", "action", "status", "started", "finished", "outputs", "model", "error"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "integer", "minimum": 1},
+          "stage": {"$ref": "#/$defs/stageCode"},
+          "action": {"type": "string", "minLength": 1},
+          "status": {"enum": ["in_progress", "done", "failed", "skipped"]},
+          "started": {"type": "string"},
+          "finished": {"type": ["string", "null"]},
+          "outputs": {"type": "array", "items": {"type": "string"}},
+          "model": {"type": ["string", "null"]},
+          "error": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "waiting_for_human": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["question", "since"],
+          "properties": {
+            "question": {"type": "string"},
+            "since": {"type": "string"},
+            "options": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      ]
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "matters_because", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^Q\\d+$"},
+          "text": {"type": "string"},
+          "matters_because": {"type": "string"},
+          "status": {"enum": ["open", "answered", "dropped"]}
+        }
+      }
+    }
+  }
+}
