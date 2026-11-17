@@ -18,7 +18,7 @@
 git clone <адрес репозитория>
 cd strategist
 pip install -r requirements.txt
-python scripts/validate.py _example      # должно быть «Проверка пройдена»
+python scripts/selftest.py              # самопроверка всех скриптов: «Пройдено 16 из 16»
 ```
 
 Откройте папку в среде и напишите агенту, например:
@@ -80,7 +80,7 @@ projects/          задачи; _example — образец всех форма
 docs/              архитектура и форматы, маршрутизация, совместимость сред, smoke-тесты
 ```
 
-Подробнее: `docs/architecture.md`. Проверка агента в новой среде: `docs/smoke-test.md`.
+Подробнее: `docs/architecture.md`. Самопроверка скриптов: `python scripts/selftest.py`. Проверка агента в новой среде: `docs/smoke-test.md`.
 
 ## Ограничения
 
