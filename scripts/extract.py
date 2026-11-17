@@ -6,6 +6,7 @@
   XLSX, XLS                → sources/S00N.csv (каждый лист — отдельный источник)
   CSV                      → sources/S00N.csv
   изображения, аудио, видео → копия как есть (kind: user_file); содержимое агент описывает сам
+  --url <адрес>            текст страницы, сохранённый вручную, когда fetch_source.py не смог её скачать
 Тот же файл (по хэшу содержимого) повторно не добавляется.
 """
 from __future__ import annotations
@@ -79,6 +80,7 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("task"); p.add_argument("file")
     p.add_argument("--title"); p.add_argument("--publisher"); p.add_argument("--notes")
+    p.add_argument("--url", help="адрес страницы, если текст сохранён вручную (сайт не дал скачать себя скрипту)")
     a = p.parse_args()
 
     tdir = task_dir(a.task)
@@ -88,12 +90,12 @@ def main() -> int:
     digest = hashlib.sha256(src.read_bytes()).hexdigest()
     sources = load_sources(tdir)
     for s in sources:
-        if s.get("original_sha256") == digest:
+        if (a.url and s.get("url") == a.url) or s.get("original_sha256") == digest:
             print(f"{s['id']} (этот файл уже добавлен, повторно не добавляю)")
             return 0
 
     ext = src.suffix.lower()
-    base = {"original_file": src.name, "url": None, "publisher": a.publisher or "материалы пользователя",
+    base = {"original_file": None if a.url else src.name, "url": a.url, "publisher": a.publisher or (None if a.url else "материалы пользователя"),
             "published": None, "retrieved": today(), "status": "ok", "notes": a.notes,
             "original_sha256": digest}
     created = []
@@ -131,8 +133,8 @@ def main() -> int:
         else:
             text, kind = src.read_text(encoding="utf-8", errors="replace"), "user_file"
         local = f"sources/{sid}.md"
-        (tdir / local).write_text(TEXT_NOTE.format(sid=sid, name=src.name) + text + "\n", encoding="utf-8")
-        register(kind, local, title)
+        (tdir / local).write_text(TEXT_NOTE.format(sid=sid, name=a.url or src.name) + text + "\n", encoding="utf-8")
+        register("site" if a.url else kind, local, title)
     elif ext in MEDIA:
         sid = next_source_id(sources)
         local = f"sources/{sid}{ext}"

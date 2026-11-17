@@ -9,6 +9,7 @@
 | `state.py` | состояние задачи: init, status, list, start, done, fail, wait, answer, stage, question |
 | `fetch_source.py` | веб-страница → `sources/S00N.md` + запись в `sources.yaml` |
 | `extract.py` | файл пользователя (PDF, DOCX, XLSX, CSV, MD, изображения, аудио) → источник |
+| `evidence.py` | реестр утверждений: add (id и проверка схемы автоматически), revoke, list |
 | `analyze.py` | профиль таблицы: типы, пропуски, периоды, дубли |
 | `validate.py` | проверка схем, меток `[E…]`/`[P…]`, источников, синтетики, чисел без опоры |
 | `revise.py` | какие записи и выводы затрагивают новые данные |
