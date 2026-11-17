@@ -24,7 +24,7 @@
 
 - [ ] Установить GigaCode CLI и открыть репозиторий.
 - [ ] Проверить шаги 2–3 выше. Если AGENTS.md не подхватился — найти в документации имя файла правил проекта и создать его с одной строкой «Прочитай AGENTS.md и следуй ему».
-- [ ] Скопировать `agents/*.md` в `.gigacode/agents/`, добавив YAML-заголовок: `name`, `description`, при необходимости `model`, `tools`.
+- [x] Субагенты лежат в `.gigacode/agents/` (`python scripts/sync_agents.py`); YAML-заголовок уже в формате GigaCode.
 - [ ] Записать результат в таблицу.
 
 Документация: https://gitverse.ru/docs/ai/ai-assistant-gigacode/gigacode-cli/

@@ -31,3 +31,6 @@ desktop.ini
 projects/*
 !projects/_example/
 !projects/demo/
+
+# Служебный курсор хука стоимости
+.cost_cursor.json

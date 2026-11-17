@@ -1,0 +1,25 @@
+# Модели и цены для учёта стоимости (scripts/cost.py) и маршрутизации (docs/routing.md).
+# Цены — в долларах за 1 млн токенов. Впишите актуальные цены с сайта провайдера,
+# когда команда выберет модели. Пока цена null — стоимость считается пустой с предупреждением.
+#
+# role: strong — анализ и стратегия; cheap — извлечение фактов и классификация.
+# match: подстроки, по которым имя модели из среды (например claude-opus-…) сопоставляется с записью.
+
+models:
+  strong-model:
+    role: strong
+    match: []
+    input: null
+    output: null
+    cache_read: null
+  cheap-model:
+    role: cheap
+    match: []
+    input: null
+    output: null
+    cache_read: null
+
+# Цены для примера projects/_example (вымышленные, только чтобы показать формат):
+example_prices:
+  strong-model: {input: 3.0, output: 15.0}
+  cheap-model: {input: 0.2, output: 0.6}
