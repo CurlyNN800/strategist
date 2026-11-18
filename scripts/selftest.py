@@ -43,7 +43,45 @@ def append_line(path: Path, text: str) -> None:
         f.write(text + "\n")
 
 
+def mcp_tools_ok() -> bool:
+    """Запустить scripts/mcp_server.py как MCP-клиент и проверить список инструментов."""
+    code = """
+import asyncio, sys
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+async def m():
+    p = StdioServerParameters(command=sys.executable, args=["scripts/mcp_server.py"])
+    async with stdio_client(p) as (r, w):
+        async with ClientSession(r, w) as s:
+            await s.initialize()
+            t = await s.list_tools()
+            print(len(t.tools), "evidence_search" in [x.name for x in t.tools])
+
+asyncio.run(m())
+"""
+    try:
+        r = subprocess.run([PY, "-c", code], cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=60)
+    except subprocess.TimeoutExpired:
+        return False
+    return r.returncode == 0 and "True" in r.stdout
+
+
+REQUIRED = {"yaml": "pyyaml", "jsonschema": "jsonschema", "requests": "requests", "markdownify": "markdownify",
+            "pypdf": "pypdf", "docx": "python-docx", "openpyxl": "openpyxl", "pandas": "pandas", "mcp": "mcp"}
+
+
+def missing_packages() -> list[str]:
+    import importlib.util
+    return [pkg for mod, pkg in REQUIRED.items() if importlib.util.find_spec(mod) is None]
+
+
 def main() -> int:
+    missing = missing_packages()
+    if missing:
+        print(f"Не установлены пакеты: {', '.join(missing)}.\n"
+              f"Выполните: {Path(PY).name} -m pip install -r requirements.txt — и запустите самопроверку снова.")
+        return 1
     tdir = PROJECTS / TASK
     shutil.rmtree(tdir, ignore_errors=True)
     shutil.copytree(PROJECTS / "_example", tdir)
@@ -67,11 +105,27 @@ def main() -> int:
                "--claim", "Обновление 4.0 вышло 15.09.2026", "--topics", "notifications", "--source", "S001",
                "--where", "тест"], 0, "E010")
 
+        print("База знаний:")
+        expect("поиск по формулировке находит запись", ["scripts/evidence.py", "search", TASK,
+               "жалобы на уведомления"], 0, "E005")
+        expect("связи записи: где использована", ["scripts/evidence.py", "show", TASK, "E005"], 0, "situation.md:")
+
+        print("Решения:")
+        expect("решение записывается с основаниями", ["scripts/decision.py", "add", TASK, "--title", "Тест",
+               "--grounds", "E005,E007", "--owner", "руководитель продукта", "--metric", "D30",
+               "--review-if", "D30 не вырос", "--review-by", "2099-01-01"], 0, "D1")
+        expect("просроченное обязательство видно", ["scripts/decision.py", "commit", TASK, "D1", "--what", "Запуск",
+               "--owner", "команда", "--due", "2000-01-01"], 0, "C1")
+        expect("«что решать» показывает просрочку", ["scripts/decision.py", "check", TASK], 0, "Просрочено")
+
         print("Пересмотр:")
         expect("новые данные находят затронутые выводы", ["scripts/revise.py", TASK, "E010"], 0, "situation.md")
         expect("отзыв записи", ["scripts/evidence.py", "revoke", TASK, "E007", "--by", "E010",
                "--reason", "тест"], 0)
         expect("валидатор ловит вывод на отозванной гипотезе", ["scripts/validate.py", TASK], 1, "отозвана")
+        expect("отозванное основание решения помечено", ["scripts/decision.py", "check", TASK], 0,
+               "Основание устарело")
+        check("MCP-сервер отдаёт инструменты", mcp_tools_ok())
 
         print("Испорченные данные:")
         shutil.rmtree(tdir); shutil.copytree(PROJECTS / "_example", tdir)
@@ -89,7 +143,8 @@ def main() -> int:
         print("Отчёт:")
         (tdir / "summary.md").write_text("# Кратко\n\n**Рекомендуем:** вернуть настройку частоты [E005].\n", encoding="utf-8")
         expect("сборка отчёта", ["scripts/build_report.py", TASK], 0, "Собран report.md")
-        report = (tdir / "report.md").read_text(encoding="utf-8")
+        rpath = tdir / "report.md"
+        report = rpath.read_text(encoding="utf-8") if rpath.exists() else ""
         check("в отчёте раскрыты метки и источники", "Приложение А" in report and "S001" in report)
     finally:
         shutil.rmtree(tdir, ignore_errors=True)

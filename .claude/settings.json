@@ -1,7 +1,17 @@
 {
   "hooks": {
     "Stop": [
-      { "hooks": [ { "type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/claude_cost_hook.py\"" } ] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/claude_cost_hook.py\""
+          }
+        ]
+      }
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "strategist"
+  ]
 }

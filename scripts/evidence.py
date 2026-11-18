@@ -1,10 +1,12 @@
-"""Реестр утверждений evidence.jsonl: добавить, отозвать, найти.
+"""Реестр утверждений evidence.jsonl: добавить, отозвать, найти, показать связи.
 
   python scripts/evidence.py add <task> --type fact --claim "..." --source S001 --where "стр. 3" \\
          --topics retention,pricing --confidence high
   python scripts/evidence.py add <task> --type hypothesis --claim "..." --basis "E003, E005: ..." --topics retention
   python scripts/evidence.py revoke <task> E007 --by E010 --reason "релиз вышел позже начала падения"
   python scripts/evidence.py list <task> [--topic T] [--type fact] [--all]
+  python scripts/evidence.py search <task> "отток после обновления" [--all] [--limit 10]
+  python scripts/evidence.py show <task> E005      источник, на чём основана, что на неё опирается, где использована
 
 id назначается автоматически, запись проверяется по схеме до сохранения —
 в реестр не попадёт fact без источника или гипотеза без основания.
@@ -13,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 
 from jsonschema import Draft202012Validator
 
@@ -71,6 +74,9 @@ def cmd_revoke(a) -> None:
     rec.update(status="revoked", revoked_by=a.by, revoked_reason=a.reason)
     check(rec)
     save_all(tdir, records)
+    if (tdir / "decisions.yaml").exists():  # отметить «устарело» у оснований решений в decisions.md
+        from decision import load as load_decisions, render
+        render(tdir, load_decisions(tdir))
     print(f"{a.id} отозвана. Найдите места, где она использована: python scripts/revise.py {a.task} {a.id}")
 
 
@@ -88,6 +94,98 @@ def cmd_list(a) -> None:
         print(f"{r['id']} [{r['type']}, {r['confidence']}]{rev} {r['claim']}{src}")
 
 
+WORD_RE = re.compile(r"[a-zа-яё0-9]+", re.I)
+STOP = {"и", "в", "во", "на", "по", "с", "со", "не", "что", "как", "для", "из", "за", "от", "до", "о", "об",
+        "а", "но", "или", "ли", "же", "the", "of", "and", "to", "in"}
+
+
+def stems(text: str) -> set[str]:
+    """Грубая основа слова: первые 5 букв. «оттока», «отток», «оттоку» совпадут без словарей."""
+    return {w[:5] for w in (m.lower().replace("ё", "е") for m in WORD_RE.findall(text or "")) if w not in STOP}
+
+
+def record_text(r: dict, sources: dict) -> str:
+    src = sources.get(r.get("source") or "", {})
+    return " ".join(str(x) for x in (r.get("claim"), r.get("where"), r.get("basis"), " ".join(r.get("topics", [])),
+                                     src.get("title"), r.get("revoked_reason")) if x)
+
+
+def search(tdir, query: str, include_revoked: bool = False, limit: int = 10) -> list[tuple[float, dict]]:
+    """Поиск по формулировке (основы слов) и темам. Совпадение темы весит больше слова в тексте."""
+    sources = {s["id"]: s for s in load_sources(tdir)}
+    q = stems(query)
+    if not q:
+        raise ToolError("Пустой запрос: укажите слова для поиска.")
+    hits = []
+    for r in load_evidence(tdir):
+        if r["status"] != "active" and not include_revoked:
+            continue
+        words = stems(record_text(r, sources))
+        topic_words = stems(" ".join(t.replace("-", " ").replace("_", " ") for t in r.get("topics", [])))
+        score = len(q & words) + 0.5 * len(q & topic_words)
+        if score:
+            hits.append((score / len(q), r))
+    hits.sort(key=lambda x: (-x[0], x[1]["id"]))
+    return hits[:limit]
+
+
+def links(tdir, rid: str) -> dict:
+    """Связи записи: источник, основания (basis), зависимые записи, места в результатах и решениях."""
+    from validate import E_RE, RESULT_FILES
+    records = {r["id"]: r for r in load_evidence(tdir)}
+    if rid not in records:
+        raise ToolError(f"Записи {rid} нет.")
+    rec = records[rid]
+    sources = {s["id"]: s for s in load_sources(tdir)}
+    upstream = [i for i in dict.fromkeys(re.findall(r"E\d{3,}", rec.get("basis") or "")) if i in records]
+    downstream = [r["id"] for r in records.values() if rid in re.findall(r"E\d{3,}", r.get("basis") or "")]
+    used = []
+    for name in RESULT_FILES:
+        path = tdir / name
+        if path.exists():
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if rid in E_RE.findall(line):
+                    used.append((name, n, line.strip()))
+    return {"record": rec, "source": sources.get(rec.get("source") or ""), "upstream": [records[i] for i in upstream],
+            "downstream": [records[i] for i in downstream], "used": used}
+
+
+def fmt_rec(r: dict) -> str:
+    rev = " [ОТОЗВАНА]" if r["status"] == "revoked" else ""
+    src = f" ← {r['source']}" if r.get("source") else ""
+    return f"{r['id']} [{r['type']}, {r['confidence']}]{rev} {r['claim']}{src}"
+
+
+def cmd_search(a) -> None:
+    hits = search(task_dir(a.task), a.query, a.all, a.limit)
+    if not hits:
+        print("Ничего не найдено. Попробуйте другие слова или темы: python scripts/evidence.py list <task>")
+        return
+    for score, r in hits:
+        print(f"{score:.0%}  {fmt_rec(r)}")
+
+
+def cmd_show(a) -> None:
+    info = links(task_dir(a.task), a.id)
+    r = info["record"]
+    print(fmt_rec(r))
+    if r["status"] == "revoked":
+        print(f"  Отозвана: {r.get('revoked_reason')} (заменена: {r.get('revoked_by')})")
+    s = info["source"]
+    if s:
+        print(f"  Источник: {s['id']} — {s.get('title', '')} ({s.get('url') or s.get('local')}); место: {r.get('where')}")
+    if r.get("basis"):
+        print(f"  Основание: {r['basis']}")
+    for title, items in (("Опирается на", info["upstream"]), ("На неё опираются", info["downstream"])):
+        if items:
+            print(f"  {title}:")
+            for x in items:
+                print(f"    {fmt_rec(x)}")
+    print("  Где использована:" if info["used"] else "  В результатах пока не использована.")
+    for name, n, line in info["used"]:
+        print(f"    {name}:{n}  {line[:100]}")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -101,6 +199,10 @@ def main() -> None:
     s.add_argument("--by", required=True); s.add_argument("--reason", required=True); s.set_defaults(fn=cmd_revoke)
     s = sub.add_parser("list"); s.add_argument("task"); s.add_argument("--topic"); s.add_argument("--type")
     s.add_argument("--all", action="store_true"); s.set_defaults(fn=cmd_list)
+    s = sub.add_parser("search"); s.add_argument("task"); s.add_argument("query")
+    s.add_argument("--all", action="store_true", help="искать и среди отозванных")
+    s.add_argument("--limit", type=int, default=10); s.set_defaults(fn=cmd_search)
+    s = sub.add_parser("show"); s.add_argument("task"); s.add_argument("id"); s.set_defaults(fn=cmd_show)
     a = p.parse_args()
     a.fn(a)
 

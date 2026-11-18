@@ -21,6 +21,8 @@ model: inherit
    - `confidence` — по `knowledge/methods/evidence-quality.md`;
    - если источник синтетический (`kind: synthetic` в `sources.yaml`) — `--type synthetic`.
 4. Не больше 15 записей на источник: только то, что может повлиять на решение.
+5. Если то же утверждение уже есть из другого источника (`python scripts/evidence.py search <task> "<суть>"`),
+   всё равно добавь своё — это второе подтверждение, — но назови совпадение в ответе.
 
 ## Ответ
 

@@ -28,23 +28,27 @@ def main() -> None:
 
     cursor_path = tdir / ".cost_cursor.json"
     cursor = json.loads(cursor_path.read_text(encoding="utf-8")) if cursor_path.exists() else {}
-    key = str(transcript)
-    lines = transcript.read_text(encoding="utf-8").splitlines()
-    start = cursor.get(key, 0)
 
+    # Основной диалог + транскрипты субагентов (<сессия>/subagents/*.jsonl): без них не видно,
+    # что извлечение фактов шло на дешёвой модели.
+    files = [transcript, *sorted(transcript.with_suffix("").glob("subagents/*.jsonl"))]
     totals: dict[str, list[int]] = {}
-    for line in lines[start:]:
-        try:
-            msg = json.loads(line).get("message") or {}
-        except json.JSONDecodeError:
-            continue
-        usage = msg.get("usage") if isinstance(msg, dict) else None
-        if not usage:
-            continue
-        t = totals.setdefault(msg.get("model", "unknown"), [0, 0, 0])
-        t[0] += usage.get("input_tokens", 0) + usage.get("cache_creation_input_tokens", 0)
-        t[1] += usage.get("output_tokens", 0)
-        t[2] += usage.get("cache_read_input_tokens", 0)
+    for path in files:
+        key = str(path)
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for line in lines[cursor.get(key, 0):]:
+            try:
+                msg = json.loads(line).get("message") or {}
+            except json.JSONDecodeError:
+                continue
+            usage = msg.get("usage") if isinstance(msg, dict) else None
+            if not usage:
+                continue
+            t = totals.setdefault(msg.get("model", "unknown"), [0, 0, 0])
+            t[0] += usage.get("input_tokens", 0) + usage.get("cache_creation_input_tokens", 0)
+            t[1] += usage.get("output_tokens", 0)
+            t[2] += usage.get("cache_read_input_tokens", 0)
+        cursor[key] = len(lines)
 
     cfg = load_models()
     for model, (inp, out, cache_read) in totals.items():
@@ -53,7 +57,6 @@ def main() -> None:
         append_row(tdir, {"timestamp": now_iso(), "step_id": "", "stage": stage, "model": name,
                           "input_tokens": inp + cache_read, "output_tokens": out,
                           "usd": "" if usd is None else usd, "estimated": "false"})
-    cursor[key] = len(lines)
     cursor_path.write_text(json.dumps(cursor), encoding="utf-8")
 
 

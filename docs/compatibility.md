@@ -15,7 +15,7 @@
 
 | Среда | Читает AGENTS.md | Адаптер | Субагенты | Hooks | MCP | Проверено |
 | --- | --- | --- | --- | --- | --- | --- |
-| Claude Code | через `CLAUDE.md` → `@AGENTS.md` | `CLAUDE.md` | `.claude/agents/` | да | `.mcp.json` | — |
+| Claude Code | через `CLAUDE.md` → `@AGENTS.md` | `CLAUDE.md` | `.claude/agents/` | да | `.mcp.json` (сервер `strategist`, 11 инструментов; проверен MCP-клиентом 2026-11-18) | — |
 | Cursor | ожидается да | `.cursor/rules/agent.mdc` | ? | ? | `.cursor/mcp.json` | — |
 | GigaCode CLI | **неизвестно — проверить** | если не читает: файл правил GigaCode со ссылкой на AGENTS.md | `.gigacode/agents/` (Markdown + YAML) | ? | есть | — |
 | Codex | ожидается да | не нужен | ? | ? | ? | — |

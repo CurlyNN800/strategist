@@ -1,23 +1,33 @@
-# Модели и цены для учёта стоимости (scripts/cost.py) и маршрутизации (docs/routing.md).
-# Цены — в долларах за 1 млн токенов. Впишите актуальные цены с сайта провайдера,
-# когда команда выберет модели. Пока цена null — стоимость считается пустой с предупреждением.
+# Модели и цены для учёта стоимости (scripts/cost.py, хук scripts/hooks/claude_cost_hook.py)
+# и маршрутизации (docs/routing.md).
 #
-# role: strong — анализ и стратегия; cheap — извлечение фактов и классификация.
-# match: подстроки, по которым имя модели из среды (например claude-opus-…) сопоставляется с записью.
+# Цены — в долларах за 1 млн токенов, публичный прайс Anthropic API (сверено 2026-11-18,
+# https://platform.claude.com/docs/en/about-claude/pricing). При работе по подписке Claude Code
+# это «стоимость в ценах API» — эквивалент, по которому можно сравнивать прогоны и среды.
+#
+# role: strong — анализ и стратегия; cheap — извлечение фактов, классификация, модельные респонденты.
+# match: подстроки, по которым имя модели из среды (например claude-opus-5-5) сопоставляется с записью.
+# cache_read: цена токенов, прочитанных из кэша промпта; null — считаем по цене input (с запасом).
 
 models:
-  strong-model:
+  claude-opus-5-5:
     role: strong
-    match: []
-    input: null
-    output: null
-    cache_read: null
-  cheap-model:
+    match: [opus]
+    input: 4.0
+    output: 20.0
+    cache_read: 0.20
+  claude-sonnet-5-5:
+    role: strong        # запасная сильная модель, если нужен компромисс цены и качества
+    match: [sonnet]
+    input: 2.0
+    output: 10.0
+    cache_read: 0.10
+  claude-haiku-5-5:
     role: cheap
-    match: []
-    input: null
-    output: null
-    cache_read: null
+    match: [haiku]
+    input: 0.10         # до 100 тыс. токенов в запросе; выше — 0.50 / 2.50
+    output: 0.50
+    cache_read: null    # цена чтения из кэша не опубликована в нашем источнике — считаем по input
 
 # Цены для примера projects/_example (вымышленные, только чтобы показать формат):
 example_prices:
