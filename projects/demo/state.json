@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task_id": "demo",
+  "title": "Связь для близких и собственных устройств: кому помочь первым, что изменить и почему оператору стоит вложиться",
+  "created": "2026-11-19T17:46:42+03:00",
+  "updated": "2026-11-19T17:47:58+03:00",
+  "stage": "01-intake",
+  "stages": {
+    "01-intake": "waiting_human",
+    "02-collect": "pending",
+    "03-research": "pending",
+    "04-options": "pending",
+    "05-decision": "pending",
+    "06-strategy": "pending",
+    "07-validation": "pending"
+  },
+  "steps": [
+    {
+      "id": 1,
+      "stage": "01-intake",
+      "action": "уточнить постановку",
+      "status": "in_progress",
+      "started": "2026-11-19T17:46:42+03:00",
+      "finished": null,
+      "outputs": [],
+      "model": null,
+      "error": null
+    }
+  ],
+  "waiting_for_human": {
+    "question": "Подтвердите постановку (brief.md, requirements.md R1–R48). Есть ли у вас приоритет: семьи или владельцы нескольких номеров — или выбираем по результатам исследования?",
+    "since": "2026-11-19T17:47:58+03:00"
+  },
+  "open_questions": []
+}

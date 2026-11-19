@@ -1,0 +1,14 @@
+# Реестр источников задачи. Формат: docs/architecture.md §5
+- id: S001
+  kind: pdf
+  title: megafon-brief
+  url: null
+  original_file: megafon-brief.pdf
+  local: sources/S001.md
+  publisher: материалы пользователя
+  published: null
+  retrieved: '2026-11-19'
+  sha256: bc6684051f4286d7387632bfb102c0dff9ebd5e2752a03bc400a08701abd50a4
+  status: ok
+  notes: null
+  original_sha256: 558d2c665caa4f4954135c8bbfb69d791e398dcdc5b625d5ded7bdb2d0eb0fa5
