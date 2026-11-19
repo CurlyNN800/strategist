@@ -3,33 +3,161 @@
   "task_id": "demo",
   "title": "Связь для близких и собственных устройств: кому помочь первым, что изменить и почему оператору стоит вложиться",
   "created": "2026-11-19T17:46:42+03:00",
-  "updated": "2026-11-19T17:47:58+03:00",
-  "stage": "01-intake",
+  "updated": "2026-11-19T18:40:14+03:00",
+  "stage": "07-validation",
   "stages": {
-    "01-intake": "waiting_human",
-    "02-collect": "pending",
-    "03-research": "pending",
-    "04-options": "pending",
-    "05-decision": "pending",
-    "06-strategy": "pending",
-    "07-validation": "pending"
+    "01-intake": "done",
+    "02-collect": "done",
+    "03-research": "done",
+    "04-options": "done",
+    "05-decision": "done",
+    "06-strategy": "done",
+    "07-validation": "done"
   },
   "steps": [
     {
       "id": 1,
       "stage": "01-intake",
       "action": "уточнить постановку",
-      "status": "in_progress",
+      "status": "done",
       "started": "2026-11-19T17:46:42+03:00",
-      "finished": null,
-      "outputs": [],
+      "finished": "2026-11-19T18:13:45+03:00",
+      "outputs": [
+        "brief.md",
+        "requirements.md"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 2,
+      "stage": "02-collect",
+      "action": "ключевые вопросы и источники",
+      "status": "done",
+      "started": "2026-11-19T18:13:45+03:00",
+      "finished": "2026-11-19T18:14:17+03:00",
+      "outputs": [
+        "sources.yaml",
+        "evidence.jsonl"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 3,
+      "stage": "03-research",
+      "action": "картина ситуации и расчёты базы",
+      "status": "done",
+      "started": "2026-11-19T18:14:17+03:00",
+      "finished": "2026-11-19T18:15:39+03:00",
+      "outputs": [
+        "situation.md",
+        "calc/baseline.py",
+        "evidence.jsonl"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 4,
+      "stage": "04-options",
+      "action": "варианты и возражения",
+      "status": "done",
+      "started": "2026-11-19T18:15:39+03:00",
+      "finished": "2026-11-19T18:18:55+03:00",
+      "outputs": [
+        "options.md",
+        "calc/options.py",
+        "evidence.jsonl"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 5,
+      "stage": "05-decision",
+      "action": "записать решение",
+      "status": "done",
+      "started": "2026-11-19T18:29:18+03:00",
+      "finished": "2026-11-19T18:29:18+03:00",
+      "outputs": [
+        "decision.md"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 6,
+      "stage": "06-strategy",
+      "action": "продуктовая и коммуникационная стратегии",
+      "status": "done",
+      "started": "2026-11-19T18:30:59+03:00",
+      "finished": "2026-11-19T18:30:59+03:00",
+      "outputs": [
+        "product-strategy.md",
+        "comms-strategy.md",
+        "calc/pilot.py",
+        "calc/profit.py"
+      ],
+      "model": null,
+      "error": null
+    },
+    {
+      "id": 7,
+      "stage": "07-validation",
+      "action": "план проверки, решения, итоговый документ",
+      "status": "done",
+      "started": "2026-11-19T18:30:59+03:00",
+      "finished": "2026-11-19T18:40:13+03:00",
+      "outputs": [
+        "validation-plan.md",
+        "decisions.md",
+        "summary.md",
+        "deliverable.md",
+        "report.md",
+        "calc/funnel.py"
+      ],
       "model": null,
       "error": null
     }
   ],
-  "waiting_for_human": {
-    "question": "Подтвердите постановку (brief.md, requirements.md R1–R48). Есть ли у вас приоритет: семьи или владельцы нескольких номеров — или выбираем по результатам исследования?",
-    "since": "2026-11-19T17:47:58+03:00"
-  },
-  "open_questions": []
+  "waiting_for_human": null,
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Q1. Какая доля перебоев у участников семейных групп вызвана исчерпанием доли при свободном остатке пакета, а какая — неоплатой, ограничением или выключенным устройством?",
+      "matters_because": "От этого зависит, поможет ли предупреждение о низком остатке; в брифе частот нет (E018)",
+      "status": "open"
+    },
+    {
+      "id": "Q2",
+      "text": "Q2. Как распределено отставание базового года (4 000 активных групп при плане 5 000): меньше новых групп, реже полезное действие или раньше уходят номера?",
+      "matters_because": "Связывает выбранную проблему с отставанием, требование R11",
+      "status": "open"
+    },
+    {
+      "id": "Q3",
+      "text": "Q3. Сколько групп и владельцев столкнутся с подходящей ситуацией во 2-м квартале — хватит ли набора для пилота?",
+      "matters_because": "Определяет, можно ли к концу Q2 оценить пользу (R33)",
+      "status": "answered"
+    },
+    {
+      "id": "Q4",
+      "text": "Q4. Как часто владельцы нескольких номеров теряют связь роутера из-за неоплаты и знают ли заранее день списания?",
+      "matters_because": "Альтернативный приоритет — владельцы номеров (R12)",
+      "status": "open"
+    },
+    {
+      "id": "Q5",
+      "text": "Q5. Сколько дополнительных оплаченных месяцев даёт предотвращённый перебой?",
+      "matters_because": "Главный множитель прибыли: 6 млн руб. = 12 000 доп. месяцев по 500 руб. (R35, R37)",
+      "status": "open"
+    },
+    {
+      "id": "Q6",
+      "text": "Q6. Какие аналоги у реальных операторов (семейные группы, уведомления об остатке) — чтобы обосновать допущения?",
+      "matters_because": "Внешние данные только как ориентир, не данные задачи",
+      "status": "answered"
+    }
+  ]
 }

@@ -12,3 +12,29 @@
   status: ok
   notes: null
   original_sha256: 558d2c665caa4f4954135c8bbfb69d791e398dcdc5b625d5ded7bdb2d0eb0fa5
+- id: S002
+  kind: site
+  title: tmp-page
+  url: https://www.iphones.ru/iNotes/rossiyane-stali-chashche-delitsya-minutami-i-gigabaytami-s-blizkimi
+  original_file: null
+  local: sources/S002.md
+  publisher: null
+  published: null
+  retrieved: '2026-11-19'
+  sha256: ef8526229eaba1d573758b66e7d4260a5e6d75f35fd6d1422f40adecc47fc3cd
+  status: ok
+  notes: null
+  original_sha256: d25bc83e8122189ed9a45ca1af9a25b2dee0b34b962e1a4ad6bb8c4b823ed90b
+- id: S003
+  kind: site
+  title: tmp-page
+  url: https://www.pushwoosh.com/ru/products/data-usage-alerts/
+  original_file: null
+  local: sources/S003.md
+  publisher: null
+  published: null
+  retrieved: '2026-11-19'
+  sha256: dd43cec40f5e840758ad96cb9461f11a808252f819b3643169cd47fd88915f0e
+  status: ok
+  notes: null
+  original_sha256: 3b0d114dedc6f9e2c103ee4f326028c83977e893a4c99e52385e6b7bf5122c34

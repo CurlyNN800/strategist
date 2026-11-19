@@ -1,2 +1,8 @@
 timestamp,step_id,stage,model,input_tokens,output_tokens,usd,estimated
 2026-11-19T17:47:59+03:00,,01-intake,claude-opus-5-5,20000,0,0.08,true
+2026-11-19T18:16:54+03:00,,04-options,claude-opus-5-5,30000,0,0.12,true
+2026-11-19T18:18:55+03:00,,05-decision,claude-opus-5-5,40000,0,0.16,true
+2026-11-19T18:19:00+03:00,,05-decision,claude-opus-5-5,103242,0,0.41297,false
+2026-11-19T18:33:56+03:00,,07-validation,claude-opus-5-5,46666,0,0.18666,true
+2026-11-19T18:40:13+03:00,,07-validation,claude-opus-5-5,141509,0,0.56604,false
+2026-11-19T18:40:13+03:00,,07-validation,claude-opus-5-5,20000,0,0.08,true
