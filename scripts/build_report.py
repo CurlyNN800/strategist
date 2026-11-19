@@ -5,6 +5,8 @@
 Порядок: summary.md (5–7 строк для руководителя) → ситуация → варианты → решение →
 продуктовая и коммуникационная стратегии → план проверки → журнал решений →
 приложения: реестр цитируемых утверждений, источники, стоимость.
+Если в задаче есть deliverable.md (итоговый документ по структуре, которую требует бриф), отчёт
+строится из него: deliverable.md → приложения. Рабочие файлы этапов остаются в папке задачи.
 Отчёт читается без остальных файлов: все метки [E…] раскрыты в приложении.
 """
 from __future__ import annotations
@@ -37,6 +39,14 @@ def demote(md: str) -> str:
     return "\n".join(out).strip()
 
 
+def demote_keep(md: str) -> str:
+    """Итоговый документ: убрать его заголовок первого уровня, остальные уровни не трогать."""
+    lines = md.strip().splitlines()
+    if lines and lines[0].startswith("# "):
+        lines = lines[1:]
+    return "\n".join(lines).strip()
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("task")
@@ -48,13 +58,19 @@ def main() -> int:
 
     parts = [f"# {state['title']}", f"_Отчёт агента «Стратег» · задача `{state['task_id']}` · собран {now_iso()[:16].replace('T', ' ')}_"]
     missing = []
-    for fname, title in SECTIONS:
+    deliverable = tdir / "deliverable.md"
+    sections = SECTIONS
+    if deliverable.exists():
+        parts.append(demote_keep(deliverable.read_text(encoding="utf-8")))
+        sections = []
+        print("Отчёт собран по deliverable.md (структура брифа); рабочие файлы этапов — в папке задачи.")
+    for fname, title in sections:
         path = tdir / fname
         if path.exists():
             parts.append(f"## {title}\n\n{demote(path.read_text(encoding='utf-8'))}")
         elif fname not in ("decisions.md",):
             missing.append(fname)
-    if "summary.md" in missing:
+    if "summary.md" in missing and not deliverable.exists():
         print("ВНИМАНИЕ: нет summary.md — напишите 5–7 строк для руководителя и соберите отчёт снова.")
 
     body = "\n\n".join(parts)
@@ -94,7 +110,8 @@ def main() -> int:
 
     report = body + "\n\n---\n\n" + "\n\n".join(appendix) + "\n"
     (tdir / "report.md").write_text(report, encoding="utf-8")
-    print(f"Собран report.md: разделов {len(parts) - 2}, утверждений {len(used)}, источников {len(src_used)}.")
+    n_parts = len(re.findall(r"^## ", "\n\n".join(parts[2:]), flags=re.M))
+    print(f"Собран report.md: разделов {n_parts}, утверждений {len(used)}, источников {len(src_used)}.")
     if missing:
         print("Нет файлов: " + ", ".join(m for m in missing))
     return 0

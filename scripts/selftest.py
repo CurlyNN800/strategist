@@ -146,6 +146,17 @@ def main() -> int:
         rpath = tdir / "report.md"
         report = rpath.read_text(encoding="utf-8") if rpath.exists() else ""
         check("в отчёте раскрыты метки и источники", "Приложение А" in report and "S001" in report)
+
+        print("Требования брифа:")
+        (tdir / "requirements.md").write_text(
+            "# Требования\n\n- **R1.** Назвать первых клиентов — S001\n- **R2.** План по кварталам — S001\n",
+            encoding="utf-8")
+        (tdir / "deliverable.md").write_text(
+            "# Итог\n\n## 1. Клиент\n\nПервые клиенты — новые пользователи [E005]. [R1]\n", encoding="utf-8")
+        expect("непокрытое требование — ошибка", ["scripts/validate.py", TASK], 1, "R2")
+        append_line(tdir / "deliverable.md", "\n## 2. План\n\nПервый квартал — проверка [E005]. [R2]")
+        expect("все требования закрыты", ["scripts/validate.py", TASK], 0, "Проверка пройдена")
+        expect("отчёт по структуре брифа", ["scripts/build_report.py", TASK], 0, "deliverable.md")
     finally:
         shutil.rmtree(tdir, ignore_errors=True)
 

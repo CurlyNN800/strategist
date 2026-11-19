@@ -8,13 +8,16 @@
   - fact из синтетического источника;
   - метка [E…] в тексте ведёт на несуществующую запись;
   - метка отозванной записи используется вне раздела «Отброшено»;
-  - метка [P…] в comms-strategy.md не найдена в product-strategy.md.
+  - метка [P…] в comms-strategy.md не найдена в product-strategy.md;
+  - есть requirements.md и deliverable.md, но требование **R…** не закрыто в deliverable.md
+    или метка [R…] ведёт на несуществующее требование.
 ПРЕДУПРЕЖДЕНИЯ (с --strict тоже ошибки):
   - строка с числом без метки [E…]/[P…];
   - синтетическая запись цитируется без слова «синтетика»;
   - в options.md меньше трёх вариантов или нет «оставить как есть»;
   - обещание в comms-strategy.md без ссылки на пункт продукта;
-  - файл источника изменился после загрузки (sha256).
+  - файл источника изменился после загрузки (sha256);
+  - есть requirements.md и summary.md, но нет deliverable.md (итоговый документ по структуре брифа).
 """
 from __future__ import annotations
 
@@ -29,10 +32,12 @@ from common import SCHEMAS, ToolError, load_evidence, load_sources, main_wrapper
 E_RE = re.compile(r"\[(E\d{3,})\]")
 P_RE = re.compile(r"\[(P\d+)\]")
 P_DEF_RE = re.compile(r"\*\*(P\d+)\.\*\*")
+R_RE = re.compile(r"\[(R\d+)\]")
+R_DEF_RE = re.compile(r"\*\*(R\d+)\.\*\*")
 RESULT_FILES = ["situation.md", "options.md", "decision.md", "product-strategy.md",
-                "comms-strategy.md", "validation-plan.md", "decisions.md", "summary.md"]
+                "comms-strategy.md", "validation-plan.md", "decisions.md", "summary.md", "deliverable.md"]
 NUMBER_CHECK_FILES = {"situation.md", "options.md", "product-strategy.md", "comms-strategy.md",
-                      "validation-plan.md", "summary.md"}
+                      "validation-plan.md", "summary.md", "deliverable.md"}
 
 
 def main() -> int:
@@ -102,7 +107,7 @@ def main() -> int:
                 section = line.lower()
                 continue
             where = f"{name}:{n}"
-            if "[E…]" in line or "[P…]" in line or re.search(r"<[^>]*…[^>]*>", line):
+            if "[E…]" in line or "[P…]" in line or "[R…]" in line or re.search(r"<[^>]*…[^>]*>", line):
                 warnings.append(f"{where}: незаполненное место из шаблона: «{line.strip()[:60]}»")
             e_refs = E_RE.findall(line)
             for rid in e_refs:
@@ -144,6 +149,24 @@ def main() -> int:
             warnings.append(f"options.md: найдено вариантов: {n_opts} (заголовки «## Вариант …»), нужно не меньше трёх")
         if "оставить как есть" not in text.lower():
             warnings.append("options.md: нет варианта «Оставить как есть»")
+
+    # --- требования брифа ---
+    req = tdir / "requirements.md"
+    deliv = tdir / "deliverable.md"
+    if req.exists():
+        r_defs = R_DEF_RE.findall(req.read_text(encoding="utf-8"))
+        if not r_defs:
+            warnings.append("requirements.md: нет ни одного требования в формате **R1.** …")
+        if deliv.exists():
+            r_used = set(R_RE.findall(deliv.read_text(encoding="utf-8")))
+            for rid in sorted(set(r_defs) - r_used, key=lambda x: int(x[1:])):
+                errors.append(f"deliverable.md: требование {rid} из requirements.md нигде не закрыто "
+                              f"(нет метки [{rid}]) — закройте его или напишите в таблице соответствия, почему нет")
+            for rid in sorted(r_used - set(r_defs), key=lambda x: int(x[1:])):
+                errors.append(f"deliverable.md: метка [{rid}] — такого требования нет в requirements.md")
+        elif (tdir / "summary.md").exists():
+            warnings.append("нет deliverable.md: в задаче есть requirements.md — соберите итоговый документ "
+                            "по структуре брифа (skills/07-validation.md)")
 
     # --- итог ---
     for e in errors:

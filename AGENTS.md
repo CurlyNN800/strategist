@@ -23,6 +23,10 @@
 9. В конце каждого этапа дай пользователю отчёт в 3–5 строк: что сделано, главное открытие,
    что дальше, сколько потрачено (`cost.py report`). Если среда сама не пишет расход
    (в `cost.csv` нет новых строк) — добавь оценку: `cost.py add <task> --model <модель> --chars <объём текста>`.
+10. Если пользователь дал бриф или ТЗ — его требования к результату записаны в `requirements.md`
+    (`R1`, `R2`…). Итоговый документ строится по структуре брифа (`deliverable.md`), и каждое
+    требование в нём закрыто или прямо названо незакрытым. Данные из брифа — данные задачи:
+    не заменяй их числами из интернета.
 
 ## Начало каждой сессии
 
@@ -43,13 +47,13 @@
 
 | Этап | Файл | Результат | Переход дальше, когда |
 | --- | --- | --- | --- |
-| `01-intake` | `skills/01-intake.md` | `brief.md` | пользователь подтвердил постановку |
+| `01-intake` | `skills/01-intake.md` | `brief.md`, `requirements.md` (если есть бриф) | пользователь подтвердил постановку |
 | `02-collect` | `skills/02-collect.md` | `sources/`, `sources.yaml`, записи `evidence.jsonl` | собраны источники по всем ключевым вопросам или пробелы записаны |
 | `03-research` | `skills/03-research.md` | `situation.md` | `python scripts/validate.py <task>` без ошибок |
 | `04-options` | `skills/04-options.md` | `options.md` | 3+ варианта, у каждого возражения |
 | `05-decision` | `skills/05-decision.md` | `decision.md` | человек выбрал вариант |
 | `06-strategy` | `skills/06-strategy.md` | `product-strategy.md`, `comms-strategy.md` | валидатор без ошибок, обещания связаны с продуктом |
-| `07-validation` | `skills/07-validation.md` | `validation-plan.md`, `report.md` | отчёт собран и проверен |
+| `07-validation` | `skills/07-validation.md` | `validation-plan.md`, `deliverable.md` (если есть требования), `report.md` | отчёт собран и проверен |
 
 Пользователь может попросить вернуться к любому этапу — тогда этап и все следующие
 получают статус `in_progress` / `pending`, прежние файлы не удаляются.
@@ -129,7 +133,9 @@
 
 - Форматы данных и правила меток: `docs/architecture.md`
 - Образец заполненной задачи: `projects/_example/`
-- Методики: `knowledge/methods/`, шаблоны результатов: `knowledge/templates/`, рубрика: `knowledge/rubric.md`
+- Методики: `knowledge/methods/` (экономика и воронка — `economics.md`, пилот — `experiments.md`,
+  план по кварталам, ресурсы и риски — `planning.md`), шаблоны результатов: `knowledge/templates/`,
+  рубрика: `knowledge/rubric.md`
 - Субагенты: `agents/` (extractor — выписка фактов на этапе 02 дешёвой моделью, red-team — возражения
   на этапе 04, auditor — проверка на этапах 06–07, respondent — модельный респондент). Если в среде нет субагентов — выполни файл отдельным проходом,
   не опираясь на свои прежние аргументы.
