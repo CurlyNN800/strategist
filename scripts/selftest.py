@@ -157,6 +157,9 @@ def main() -> int:
         append_line(tdir / "deliverable.md", "\n## 2. План\n\nПервый квартал — проверка [E005]. [R2]")
         expect("все требования закрыты", ["scripts/validate.py", TASK], 0, "Проверка пройдена")
         expect("отчёт по структуре брифа", ["scripts/build_report.py", TASK], 0, "deliverable.md")
+        expect("чистая версия для руководителя", ["scripts/build_report.py", TASK, "--clean"], 0, "report-clean.md")
+        clean = (tdir / "report-clean.md").read_text(encoding="utf-8")
+        check("в чистой версии нет служебных меток, есть сноски", "[R1]" not in clean and "[E005]" not in clean and "[^1]" in clean)
     finally:
         shutil.rmtree(tdir, ignore_errors=True)
 

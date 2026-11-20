@@ -1,9 +1,9 @@
 # Реестр источников задачи. Формат: docs/architecture.md §5
 - id: S001
   kind: pdf
-  title: megafon-brief
+  title: case-brief
   url: null
-  original_file: megafon-brief.pdf
+  original_file: case-brief.pdf
   local: sources/S001.md
   publisher: материалы пользователя
   published: null

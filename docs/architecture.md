@@ -29,7 +29,8 @@
 | `decisions.md` | `scripts/decision.py` | читаемый журнал, собирается из `decisions.yaml`; отозванные основания помечены «устарело» |
 | `summary.md` | этап 07 | 5–7 строк для руководителя |
 | `deliverable.md` | этап 07 | только при `requirements.md`: итоговый документ по структуре брифа, требования отмечены `[R…]` |
-| `report.md` | `build_report.py` | итоговый отчёт (из `deliverable.md`, если он есть) |
+| `report.md` | `build_report.py` | итоговый отчёт с метками и приложениями (из `deliverable.md`, если он есть) |
+| `report-clean.md` | `build_report.py --clean` | версия для руководителя: без служебных меток, ссылки на утверждения — сносками |
 | `calc/` | `analyze.py` | воспроизводимые расчёты |
 
 ## 2. Этапы

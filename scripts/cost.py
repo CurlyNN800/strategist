@@ -104,7 +104,9 @@ def cmd_report(a) -> None:
         for k, (i, o, u) in sorted(data.items()):
             print(f"| {k} | {fmt(i)} | {fmt(o)} | {u:.3f} |")
 
-    print(f"**Итого: ${tot[2]:.3f}** — {fmt(tot[0])} входных и {fmt(tot[1])} выходных токенов, записей: {len(rows)}.")
+    tok_txt = (f"{fmt(tot[0])} входных токенов, выходные не измерены" if tot[1] == 0 and est
+               else f"{fmt(tot[0])} входных и {fmt(tot[1])} выходных токенов")
+    print(f"**Итого: ${tot[2]:.3f}** — {tok_txt}, записей: {len(rows)}.")
     table("Этап", by_stage)
     table("Модель", by_model)
     if est:
