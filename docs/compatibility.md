@@ -17,18 +17,20 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code | через `CLAUDE.md` → `@AGENTS.md` | `CLAUDE.md` | `.claude/agents/` | да | `.mcp.json` (сервер `strategist`, 11 инструментов; проверен MCP-клиентом 2026-11-18) | — |
 | Cursor | ожидается да | `.cursor/rules/agent.mdc` | ? | ? | `.cursor/mcp.json` | — |
-| GigaCode CLI | **неизвестно — проверить** | если не читает: файл правил GigaCode со ссылкой на AGENTS.md | `.gigacode/agents/` (Markdown + YAML) | ? | есть | — |
+| GigaCode (плагин VS Code, агентный режим) | да, сам: пересказал правила без подсказки | не нужен | не проверялись | нет — стоимость не записана, нужен `cost.py add --chars` | не проверялся | 2026-11-20: `продолжи habit-test` — продолжил этап 03 с шага 7, упавший шаг 6 оставил `failed` с открытым Q1, готовые шаги не повторял; записи E010–E011 через `evidence.py`, этап закрыт через `state.py`, свой расчёт `calc/retention.py`; `validate --strict` 0/0 |
+| GigaCode CLI | не проверялся | если не читает: файл правил GigaCode со ссылкой на AGENTS.md | `.gigacode/agents/` (Markdown + YAML) | ? | есть | — |
 | Codex | ожидается да | не нужен | ? | ? | ? | — |
 
 ## GigaCode: что сделать
 
-- [ ] Установить GigaCode CLI и открыть репозиторий.
+- [x] Плагин GigaCode в VS Code: репозиторий открыт, AGENTS.md подхвачен сам (2026-11-20).
+- [ ] (по желанию) GigaCode CLI.
 - [ ] Проверить шаги 2–3 выше. Если AGENTS.md не подхватился — найти в документации имя файла правил проекта и создать его с одной строкой «Прочитай AGENTS.md и следуй ему».
 - [x] Субагенты лежат в `.gigacode/agents/` (`python scripts/sync_agents.py`); YAML-заголовок уже в формате GigaCode.
-- [ ] Записать результат в таблицу.
+- [x] Записать результат в таблицу.
 
 Документация: https://gitverse.ru/docs/ai/ai-assistant-gigacode/gigacode-cli/
 
 ## Найденные расхождения и обходы
 
-_Пока пусто._
+- **GigaCode, плагин VS Code:** нет хука учёта токенов, агент сам не вызвал `cost.py add --chars` — стоимость прогона не попала в `cost.csv`. Обход: в конце этапа попросить «запиши стоимость через scripts/cost.py».
