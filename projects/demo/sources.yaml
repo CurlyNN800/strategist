@@ -1,20 +1,20 @@
 # Реестр источников задачи. Формат: docs/architecture.md §5
 - id: S001
   kind: pdf
-  title: case-brief
+  title: Бриф кейса «Связь для близких и собственных устройств»
   url: null
   original_file: case-brief.pdf
   local: sources/S001.md
   publisher: материалы пользователя
   published: null
   retrieved: '2026-11-19'
-  sha256: bc6684051f4286d7387632bfb102c0dff9ebd5e2752a03bc400a08701abd50a4
+  sha256: 847991d034455fafce79ba14eb4dd13ac15cbea0683b561f45ac2d15881938d4
   status: ok
   notes: null
   original_sha256: 558d2c665caa4f4954135c8bbfb69d791e398dcdc5b625d5ded7bdb2d0eb0fa5
 - id: S002
   kind: site
-  title: tmp-page
+  title: Россияне стали чаще делиться минутами и гигабайтами с близкими (iPhones.ru, 26.06.2025)
   url: https://www.iphones.ru/iNotes/rossiyane-stali-chashche-delitsya-minutami-i-gigabaytami-s-blizkimi
   original_file: null
   local: sources/S002.md
@@ -27,7 +27,7 @@
   original_sha256: d25bc83e8122189ed9a45ca1af9a25b2dee0b34b962e1a4ad6bb8c4b823ed90b
 - id: S003
   kind: site
-  title: tmp-page
+  title: Оповещения о расходе данных для мобильных операторов (Pushwoosh)
   url: https://www.pushwoosh.com/ru/products/data-usage-alerts/
   original_file: null
   local: sources/S003.md

@@ -25,7 +25,9 @@
    - файл пользователя → `python scripts/extract.py <task> <файл>`;
    - сайт не скачался скриптом (403, защита от ботов) → прочитай страницу встроенным инструментом
      среды, сохрани текст в `projects/<task>/tmp-page.md` и выполни
-     `python scripts/extract.py <task> projects/<task>/tmp-page.md --url <адрес>`.
+     `python scripts/extract.py <task> projects/<task>/tmp-page.md --url <адрес>`;
+     первой строкой файла поставь `# <название страницы и издание>` — оно станет названием источника
+     в отчёте (или передай `--title`).
    Каждый источник получает id `S…` в `sources.yaml` и копию в `sources/`.
 4. Из каждого источника выпиши утверждения: одно утверждение — одна запись, с единицами,
    периодом и местом в источнике — `python scripts/evidence.py add <task> --type fact --source S… --where … --topics … --claim …`.

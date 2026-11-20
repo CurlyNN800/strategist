@@ -132,6 +132,9 @@ def main() -> int:
             text, kind = html_to_markdown(src.read_text(encoding="utf-8", errors="replace"))[1], "user_file"
         else:
             text, kind = src.read_text(encoding="utf-8", errors="replace"), "user_file"
+        if not a.title:
+            heading = next((l[2:].strip() for l in text.splitlines() if l.startswith("# ")), "")
+            title = heading or title
         local = f"sources/{sid}.md"
         (tdir / local).write_text(TEXT_NOTE.format(sid=sid, name=a.url or src.name) + text + "\n", encoding="utf-8")
         register("site" if a.url else kind, local, title)

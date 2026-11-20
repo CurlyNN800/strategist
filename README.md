@@ -12,13 +12,13 @@
 
 ## Быстрый старт (5 минут)
 
-**Нужно:** Python 3.10+ и одна из сред: Claude Code, Cursor, Codex или другая, читающая `AGENTS.md`.
+**Нужно:** Python 3.10+ и одна из сред: Claude Code или GigaCode (проверены), Cursor, Codex или другая, читающая `AGENTS.md`.
 
 ```bash
 git clone <адрес репозитория>
 cd strategist
 pip install -r requirements.txt
-python scripts/selftest.py              # самопроверка всех скриптов: «Пройдено 28 из 28»
+python scripts/selftest.py              # самопроверка всех скриптов: «Пройдено 31 из 31»
 ```
 
 **Windows:** если на `python` открывается Microsoft Store или «Python was not found» — Python не в PATH

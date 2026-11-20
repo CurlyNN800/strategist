@@ -34,3 +34,6 @@ projects/*
 
 # Служебный курсор хука стоимости
 .cost_cursor.json
+
+# Временная блокировка реестра (evidence.py)
+evidence.lock

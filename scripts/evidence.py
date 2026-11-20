@@ -15,6 +15,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import time
+from contextlib import contextmanager
 import re
 
 from jsonschema import Draft202012Validator
@@ -22,8 +25,35 @@ from jsonschema import Draft202012Validator
 from common import SCHEMAS, ToolError, load_evidence, load_sources, load_state, main_wrapper, task_dir, today
 
 
+@contextmanager
+def registry_lock(tdir, timeout: float = 30.0):
+    """Блокировка реестра на время чтения-изменения-записи: параллельные субагенты не получат одинаковые номера."""
+    path = tdir / "evidence.lock"
+    start = time.monotonic()
+    while True:
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            break
+        except FileExistsError:
+            try:
+                if time.time() - path.stat().st_mtime > 120:  # брошенная блокировка упавшего процесса
+                    path.unlink(missing_ok=True)
+                    continue
+            except FileNotFoundError:
+                continue
+            if time.monotonic() - start > timeout:
+                raise ToolError(f"Реестр занят другим процессом больше {timeout:.0f} с ({path.name}). Повторите команду.")
+            time.sleep(0.05)
+    try:
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        yield
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def save_all(tdir, records: list[dict]) -> None:
-    tmp = tdir / "evidence.jsonl.tmp"
+    tmp = tdir / f"evidence.jsonl.{os.getpid()}.tmp"
     tmp.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records), encoding="utf-8")
     tmp.replace(tdir / "evidence.jsonl")
 
@@ -37,47 +67,49 @@ def check(rec: dict) -> None:
 
 def cmd_add(a) -> None:
     tdir = task_dir(a.task)
-    records = load_evidence(tdir)
-    nums = [int(r["id"][1:]) for r in records if r.get("id", "").startswith("E")]
-    rid = f"E{max(nums, default=0) + 1:03d}"
-    if a.type == "fact" and not (a.source and a.where):
-        raise ToolError("Факт без источника не записывается: укажите --source S… и --where «где в источнике». "
-                        "Нет источника — это hypothesis с --basis.")
-    if a.type in ("hypothesis", "forecast") and not a.basis:
-        raise ToolError(f"Для {a.type} нужно --basis: на чём основано (метки E… и/или рассуждение).")
-    if a.type == "synthetic" and not a.source:
-        raise ToolError("Для synthetic укажите --source — сессию модельного респондента в sources/.")
-    if a.source:
-        sources = {s["id"]: s for s in load_sources(tdir)}
-        if a.source not in sources:
-            raise ToolError(f"Источника {a.source} нет в sources.yaml — сначала fetch_source.py или extract.py.")
-        if sources[a.source].get("kind") == "synthetic" and a.type == "fact":
-            raise ToolError(f"{a.source} — синтетический источник: тип записи должен быть synthetic, не fact.")
-    rec = {"id": rid, "claim": a.claim, "type": a.type, "source": a.source, "where": a.where,
-           "basis": a.basis, "confidence": a.confidence, "status": "active", "revoked_by": None,
-           "revoked_reason": None, "topics": [t.strip() for t in a.topics.split(",") if t.strip()],
-           "stage": a.stage or load_state(tdir)["stage"], "added": today()}
-    check(rec)
-    records.append(rec)
-    save_all(tdir, records)
-    print(f"{rid} добавлена ({a.type}). Ссылайтесь на неё в тексте как [{rid}].")
+    with registry_lock(tdir):
+        records = load_evidence(tdir)
+        nums = [int(r["id"][1:]) for r in records if r.get("id", "").startswith("E")]
+        rid = f"E{max(nums, default=0) + 1:03d}"
+        if a.type == "fact" and not (a.source and a.where):
+            raise ToolError("Факт без источника не записывается: укажите --source S… и --where «где в источнике». "
+                            "Нет источника — это hypothesis с --basis.")
+        if a.type in ("hypothesis", "forecast") and not a.basis:
+            raise ToolError(f"Для {a.type} нужно --basis: на чём основано (метки E… и/или рассуждение).")
+        if a.type == "synthetic" and not a.source:
+            raise ToolError("Для synthetic укажите --source — сессию модельного респондента в sources/.")
+        if a.source:
+            sources = {s["id"]: s for s in load_sources(tdir)}
+            if a.source not in sources:
+                raise ToolError(f"Источника {a.source} нет в sources.yaml — сначала fetch_source.py или extract.py.")
+            if sources[a.source].get("kind") == "synthetic" and a.type == "fact":
+                raise ToolError(f"{a.source} — синтетический источник: тип записи должен быть synthetic, не fact.")
+        rec = {"id": rid, "claim": a.claim, "type": a.type, "source": a.source, "where": a.where,
+               "basis": a.basis, "confidence": a.confidence, "status": "active", "revoked_by": None,
+               "revoked_reason": None, "topics": [t.strip() for t in a.topics.split(",") if t.strip()],
+               "stage": a.stage or load_state(tdir)["stage"], "added": today()}
+        check(rec)
+        records.append(rec)
+        save_all(tdir, records)
+        print(f"{rid} добавлена ({a.type}). Ссылайтесь на неё в тексте как [{rid}].")
 
 
 def cmd_revoke(a) -> None:
     tdir = task_dir(a.task)
-    records = load_evidence(tdir)
-    rec = next((r for r in records if r["id"] == a.id), None)
-    if not rec:
-        raise ToolError(f"Записи {a.id} нет.")
-    if rec["status"] == "revoked":
-        raise ToolError(f"{a.id} уже отозвана: {rec['revoked_reason']}")
-    rec.update(status="revoked", revoked_by=a.by, revoked_reason=a.reason)
-    check(rec)
-    save_all(tdir, records)
-    if (tdir / "decisions.yaml").exists():  # отметить «устарело» у оснований решений в decisions.md
-        from decision import load as load_decisions, render
-        render(tdir, load_decisions(tdir))
-    print(f"{a.id} отозвана. Найдите места, где она использована: python scripts/revise.py {a.task} {a.id}")
+    with registry_lock(tdir):
+        records = load_evidence(tdir)
+        rec = next((r for r in records if r["id"] == a.id), None)
+        if not rec:
+            raise ToolError(f"Записи {a.id} нет.")
+        if rec["status"] == "revoked":
+            raise ToolError(f"{a.id} уже отозвана: {rec['revoked_reason']}")
+        rec.update(status="revoked", revoked_by=a.by, revoked_reason=a.reason)
+        check(rec)
+        save_all(tdir, records)
+        if (tdir / "decisions.yaml").exists():  # отметить «устарело» у оснований решений в decisions.md
+            from decision import load as load_decisions, render
+            render(tdir, load_decisions(tdir))
+        print(f"{a.id} отозвана. Найдите места, где она использована: python scripts/revise.py {a.task} {a.id}")
 
 
 def cmd_list(a) -> None:
