@@ -16,7 +16,9 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+from datetime import datetime
 
 from common import (STAGES, PROJECTS, ROOT, ToolError, append_log, load_state, main_wrapper,
                     now_iso, save_state, task_dir)
@@ -154,6 +156,23 @@ def cmd_answer(a) -> None:
     print("Ответ записан, ожидание снято.")
 
 
+def cost_reminder(tdir, st: dict, stage_code: str) -> str:
+    """Если за этап в cost.csv не появилось ни одной строки — напомнить записать оценку.
+    В Claude Code строки пишет хук; в средах без хука это забывают (GigaCode, Cursor)."""
+    starts = [s.get("started") for s in st["steps"] if s["stage"] == stage_code and s.get("started")]
+    if not starts:
+        return ""
+    try:
+        since = min(datetime.fromisoformat(x) for x in starts)
+        rows = list(csv.DictReader((tdir / "cost.csv").open(encoding="utf-8")))
+        if any(r.get("timestamp") and datetime.fromisoformat(r["timestamp"]) >= since for r in rows):
+            return ""
+    except (OSError, ValueError, TypeError):
+        pass
+    return (f"ВНИМАНИЕ: расход этапа {stage_code} не записан (среда без хука?). Запиши оценку: "
+            f"python scripts/cost.py add {tdir.name} --model <модель> --chars <объём прочитанного и написанного текста> --stage {stage_code}")
+
+
 def cmd_stage(a) -> None:
     tdir = task_dir(a.task)
     st = load_state(tdir)
@@ -185,6 +204,10 @@ def cmd_stage(a) -> None:
     save_state(tdir, st)
     append_log(tdir, "", a.stage_code, "stage", msg)
     print(msg)
+    if a.status == "done":
+        reminder = cost_reminder(tdir, st, a.stage_code)
+        if reminder:
+            print(reminder)
 
 
 def cmd_question(a) -> None:

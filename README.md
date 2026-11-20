@@ -18,7 +18,7 @@
 git clone <адрес репозитория>
 cd strategist
 pip install -r requirements.txt
-python scripts/selftest.py              # самопроверка всех скриптов: «Пройдено 31 из 31»
+python scripts/selftest.py              # самопроверка всех скриптов: «Пройдено 34 из 34»
 ```
 
 **Windows:** если на `python` открывается Microsoft Store или «Python was not found» — Python не в PATH
