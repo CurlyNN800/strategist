@@ -12,7 +12,7 @@
 
 ## Быстрый старт (5 минут)
 
-**Нужно:** Python 3.10+ и одна из сред: Claude Code или GigaCode (проверены), Cursor, Codex или другая, читающая `AGENTS.md`.
+**Нужно:** Python 3.10+ и одна из сред: Claude Code, GitHub Copilot и Cursor (проверены), GigaCode, Codex или другая, читающая `AGENTS.md`.
 
 ```bash
 git clone <адрес репозитория>

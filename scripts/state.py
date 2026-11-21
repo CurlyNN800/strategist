@@ -158,7 +158,7 @@ def cmd_answer(a) -> None:
 
 def cost_reminder(tdir, st: dict, stage_code: str) -> str:
     """Если за этап в cost.csv не появилось ни одной строки — напомнить записать оценку.
-    В Claude Code строки пишет хук; в средах без хука это забывают (GigaCode, Cursor)."""
+    В Claude Code строки пишет хук; в средах без хука это забывают (GitHub Copilot, Cursor)."""
     starts = [s.get("started") for s in st["steps"] if s["stage"] == stage_code and s.get("started")]
     if not starts:
         return ""
